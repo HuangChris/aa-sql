@@ -2,15 +2,15 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
   id INTEGER PRIMARY KEY,
-  fname VARCHAR(255) NOT NULL,
-  lname VARCHAR(255) NOT NULL
+  fname VARCHAR(255),
+  lname VARCHAR(255)
 );
 
 DROP TABLE IF EXISTS questions;
 
 CREATE TABLE questions (
   id INTEGER PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
+  title VARCHAR(255),
   body TEXT,
   user_id INTEGER REFERENCES users(id)
 );
@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS replies;
 
 CREATE TABLE replies (
   id INTEGER PRIMARY KEY,
-  question_id INTEGER REFERENCES questions(id) NOT NULL,
+  question_id INTEGER REFERENCES questions(id),
   parent_id INTEGER REFERENCES replies(id),
   user_id INTEGER REFERENCES users(id),
   body TEXT
@@ -64,4 +64,5 @@ VALUES
 INSERT INTO
   question_likes(id, question_id, user_id)
 VALUES
-  (1,1,2);
+  (1,1,2),
+  (2,1,1);

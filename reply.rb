@@ -11,6 +11,32 @@ class Reply < Table
     @body = data["body"]
   end
 
+  def save
+    db = QuestionsDatabase.instance
+    if @id.nil?
+      db.execute(<<-SQL, question_id: @question_id, parent_id: @parent_id, user_id: @user_id, body: @body)
+        INSERT INTO
+          replies(question_id, parent_id, user_id, body)
+        VALUES
+          (:question_id, :parent_id, :user_id, :body)
+      SQL
+      @id = db.last_insert_row_id
+
+    else
+      db.execute(<<-SQL, question_id: @question_id, parent_id: @parent_id, user_id: @user_id, body: @body, id: @id)
+        UPDATE
+          replies
+        SET
+          question_id = :question_id,
+          parent_id = :parent_id,
+          user_id = :user_id,
+          body = :body
+        WHERE
+          id = :id
+      SQL
+    end
+  end
+
   def self.find_by_id(id)
     Reply.new(super(id))
   end

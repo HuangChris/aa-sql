@@ -17,7 +17,7 @@ class QuestionFollow < Table
     db = QuestionsDatabase.instance
     data = db.execute(<<-SQL, question_id)
       SELECT
-        *
+        user.*
       FROM
         user
       JOIN
@@ -33,7 +33,7 @@ class QuestionFollow < Table
     db = QuestionsDatabase.instance
     data = db.execute(<<-SQL, user_id)
       SELECT
-        *
+        questions.*
       FROM
         questions
       JOIN
@@ -78,5 +78,75 @@ class QuestionLike < Table
 
   def self.find_by_id(id)
     QuestionLike.new(super(id))
+  end
+
+  def self.likers_for_question_id(question_id)
+    db = QuestionsDatabase.instance
+    data = db.execute(<<-SQL, question_id)
+      SELECT
+        *
+      FROM
+        users
+      JOIN
+        question_likes ON users.id = question_likes.user_id
+      WHERE
+        question_likes.question_id = ?
+    SQL
+
+    data.map { |record| User.new(record) }
+  end
+
+  def self.num_likes_for_question_id(question_id)
+    db = QuestionsDatabase.instance
+    data = db.execute(<<-SQL, question_id).first
+      SELECT
+        COUNT(question_likes.id) AS num_likes
+      FROM
+        questions
+      JOIN
+        question_likes ON questions.id = question_likes.question_id
+      GROUP BY
+        questions.id
+      HAVING
+        questions.id = ?
+    SQL
+
+    data[0]
+  end
+
+  def self.liked_questions_for_user_id(user_id)
+    db = QuestionsDatabase.instance
+    data = db.execute(<<-SQL, user_id)
+      SELECT
+        *
+      FROM
+        questions
+      JOIN
+        question_likes ON questions.id = question_likes.question_id
+      WHERE
+        question_likes.user_id = ?
+    SQL
+
+    data.map { |record| Question.new(record) }
+  end
+
+  def self.most_liked_questions(n)
+    db = QuestionsDatabase.instance
+    data = db.execute(<<-SQL, n)
+      SELECT
+        *
+      FROM
+        questions
+      JOIN
+        question_likes ON questions.id = question_likes.question_id
+      GROUP BY
+        questions.title
+      ORDER BY
+        COUNT(question_likes.id)
+      LIMIT
+        ?
+    SQL
+
+    data.map { |record| Question.new(record) }
   end
 end
