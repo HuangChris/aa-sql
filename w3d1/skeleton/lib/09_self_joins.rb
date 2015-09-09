@@ -182,6 +182,18 @@ def craiglockhart_and_tollcross
   # Give the company and num of the services that connect stops
   # 'Craiglockhart' and 'Tollcross'
   execute(<<-SQL)
+  SELECT
+    DISTINCT a.company, a.num
+  FROM
+    routes a
+  JOIN
+    routes b ON (a.company = b.company AND a.num = b.num)
+  JOIN
+    stops stopa ON (a.stop_id = stopa.id)
+  JOIN
+    stops stopb ON (b.stop_id = stopb.id)
+  WHERE
+    stopa.name = 'Craiglockhart' AND stopb.name = 'Tollcross'
   SQL
 end
 
@@ -190,6 +202,18 @@ def start_at_craiglockhart
   # by taking one bus, including 'Craiglockhart' itself. Include the stop name,
   # as well as the company and bus no. of the relevant service.
   execute(<<-SQL)
+  SELECT
+    DISTINCT stopb.name, a.company, a.num
+  FROM
+    routes a
+  JOIN
+    routes b ON (a.company = b.company AND a.num = b.num)
+  JOIN
+    stops stopa ON (a.stop_id = stopa.id)
+  JOIN
+    stops stopb ON (b.stop_id = stopb.id)
+  WHERE
+    stopa.name = 'Craiglockhart'
   SQL
 end
 
@@ -198,5 +222,28 @@ def craiglockhart_to_sighthill
   # Sighthill. Show the bus no. and company for the first bus, the name of the
   # stop for the transfer, and the bus no. and company for the second bus.
   execute(<<-SQL)
+    SELECT
+      DISTINCT lockhart_busses.num, lockhart_busses.company,
+      stopb.name, last_bus.num, last_bus.company
+    FROM
+      stops stopa
+    JOIN
+      routes lockhart_busses ON (stopa.id = lockhart_busses.stop_id)
+    JOIN
+      routes bus_a ON (lockhart_busses.num = bus_a.num
+      AND lockhart_busses.company = bus_a.company)
+    JOIN
+      stops stopb ON (stopb.id = bus_a.stop_id)
+    JOIN
+      routes middle_stop ON (stopb.id = middle_stop.stop_id)
+    JOIN
+      routes last_bus ON (middle_stop.num = last_bus.num
+      AND middle_stop.company = last_bus.company)
+    JOIN
+      stops stopc ON (stopc.id = last_bus.stop_id)
+    WHERE
+      stopa.name = 'Craiglockhart'
+      AND stopc.name = 'Sighthill'
+
   SQL
 end
