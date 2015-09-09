@@ -11,22 +11,28 @@
 #
 
 class Course < ActiveRecord::Base
-  has_many :enrollments,
+  has_many(
+    :enrollments,
     class_name: :Enrollment,
     foreign_key: :course_id,
     primary_key: :id
+  )
 
-    has_many :enrolled_students,
-      class_name: :User,
-      through: :enrollments
+  has_many :enrolled_students,
+    # class_name: :User,
+    through: :enrollments,
+    source: :enrolled_student
 
-    has_many :prerequisites,
-      class_name: :Course,
-      foreign_key: :prereq_id,
-      primary_key: :id
+  # belongs: foreign key lives in this/current row/record, points to another record
+  # has: foreign key lives in another record, points to the current record
 
-    belongs_to :instructor,
-      class_name: :User,
-      foreign_key: :instructor_id,
-      primary_key: :id
+  belongs_to :prerequisites,
+    class_name: :Course,
+    foreign_key: :prereq_id,
+    primary_key: :id
+
+  belongs_to :instructor,
+    class_name: :User,
+    foreign_key: :instructor_id,
+    primary_key: :id
 end

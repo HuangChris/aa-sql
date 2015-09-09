@@ -10,12 +10,12 @@
 #
 
 class Enrollment < ActiveRecord::Base
-  belongs_to :enrolled_students,
+  belongs_to :enrolled_student,
     class_name: :User,
     foreign_key: :student_id,
     primary_key: :id
 
-  belongs_to :course_enrollments,
+  belongs_to :course,
     class_name: :Course,
     foreign_key: :course_id,
     primary_key: :id
