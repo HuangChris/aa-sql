@@ -1,0 +1,10 @@
+class CreateUsers < ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+      t.timestamps
+      t.string :user_name, null: false
+    end
+
+    add_index :users, :user_name, unique: true
+  end
+end
