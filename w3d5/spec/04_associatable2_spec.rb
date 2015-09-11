@@ -76,4 +76,20 @@ describe 'Associatable' do
       expect(house.address).to eq('26th and Guerrero')
     end
   end
+
+  describe '#has_many_through' do
+    before(:all) do
+      class House
+        has_many_through :cats, :humans, :cats
+        self.finalize!
+      end
+    end
+    let(:house) {House.find(1)}
+
+    it 'works?' do
+      cats = house.cats
+      expect(cats).to be_a(Array)
+      expect(cats[1]).to be_instance_of(Cat)
+    end
+  end
 end
