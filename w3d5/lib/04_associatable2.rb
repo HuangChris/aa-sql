@@ -33,8 +33,8 @@ module Associatable
     define_method(name) do
       through_options = self.class.assoc_options[through_name]
       source_options = through_options.model_class.assoc_options[source_name]
-      source_table = source_options.table_name
-      through_table = through_options.table_name
+      source_table = source_options.table_name #cats
+      through_table = through_options.table_name #humans
 
       record = DBConnection.execute(<<-SQL)
         SELECT
@@ -43,11 +43,11 @@ module Associatable
           #{source_table}
         JOIN
           #{through_table}
-          ON #{source_table}.#{source_options.primary_key} =
-           #{through_table}.#{source_options.foreign_key}
+          ON #{source_table}.#{source_options.foreign_key} =
+           #{through_table}.#{source_options.primary_key}
         WHERE
-          #{through_table}.#{through_options.primary_key} =
-           #{self.send(through_options.foreign_key)}
+          #{through_table}.#{through_options.foreign_key} =
+           #{self.send(through_options.primary_key)}
       SQL
 
       source_options.model_class.parse_all(record)
