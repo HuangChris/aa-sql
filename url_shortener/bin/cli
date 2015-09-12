@@ -1,0 +1,51 @@
+class CLI
+  def run
+    puts "inputs your email:"
+    email = gets.chomp
+    puts "What do you want to do?"
+    puts "0. Create shortened URL"
+    puts "1. Visit shortened URL"
+    choice = gets.chomp.to_i
+
+    user = get_user(email)
+
+    if choice == 0
+      make_url(user)
+    elsif choice == 1
+      go_to_site(user)
+    else
+      raise "Bad option"
+    end
+  end
+
+  private
+  def make_url(user)
+    puts "type in your long url"
+    long_url = gets.chomp
+    puts "what is the topic of this site? Options: sports, news, coding, squirrel, sql"
+    tag = gets.chomp.downcase
+    url = ShortenedUrl.find_by(long_url: long_url)
+    url ||= ShortenedUrl.create_for_user_and_long_url!(user, long_url) 
+    Tagging.create_by_url_and_tag_topic!(url, TagTopic.find_by_tag(tag))
+    puts url.shortened_url
+  end
+
+  def go_to_site(user)
+    puts "type in the shortened URL"
+    url = gets.chomp
+    url = ShortenedUrl.find_by_shortened_url(url)
+    Launchy.open(url.long_url)
+
+    Visit.record_visit!(user, url)
+  end
+
+  def get_user(email)
+    User.find_or_create_by(email: email)
+    # user = User.create!(email: email) if User.find_by_email(email).nil?
+    # user = User.find_by_email(email)
+  end
+end
+
+if __FILE__ == $PROGRAM_NAME
+  CLI.new.run
+end
